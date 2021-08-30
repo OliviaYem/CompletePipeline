@@ -19,8 +19,8 @@ class CroppedClusterDataset(Dataset):
         return len(dirFiles)
 
     def __getitem__(self, idx):
-        img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
-        name = self.img_labels.iloc[idx, 0]
+        img_path = os.path.join(self.img_dir, os.listdir(self.img_dir)[idx])
+        name = os.listdir(self.img_dir)[idx]
         image = read_image(img_path)
         if self.transform:
             image = self.transform(image)
@@ -30,6 +30,10 @@ class CroppedClusterDataset(Dataset):
 # function to run inferences and output the results
 def run_model(model,dataloader,device,classes,SaveFileName):
     model.eval()
+    with open(SaveFileName,'w',newline='') as f:
+        writer = csv.writer(f)
+        header = ['FileName','Prediction']
+        writer.writerow(header)
     for (idx,batch) in enumerate(dataloader):
         inputs = batch['image']
         names = batch['name']
@@ -38,12 +42,10 @@ def run_model(model,dataloader,device,classes,SaveFileName):
         outputs = model(inputs)
         _,preds = torch.max(outputs,1)
 
-    with open(SaveFileName,'w',newline='') as f:
-        writer = csv.writer(f)
-        header = ['FileName','Prediction']
-        writer.writerow(header)
-        for i in range(inputs.size()[0]):
-            row = [names[i],classes[preds[i]]]
-            writer.writerow(row)
+        with open(SaveFileName,'a',newline='') as f:
+            writer = csv.writer(f)
+            for i in range(inputs.size()[0]):
+                row = [names[i],classes[preds[i]]]
+                writer.writerow(row)
     print('Inferences completed')
     return

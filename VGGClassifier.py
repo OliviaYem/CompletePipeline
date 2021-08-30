@@ -7,10 +7,10 @@ import torch.nn as nn
 import ClassifierFunctions as cf
 
 #Set up data
-images = '/home/oliviayem/ClassificationDataset/test'
+images = '/home/oliviayem/ClassificationDataset/test/'
 transform = transforms.Compose([transforms.Resize((255,255))])
 data = cf.CroppedClusterDataset(images,transform=transform)
-dataloader = DataLoader(data, batch_size=32, shuffle=True)
+dataloader = DataLoader(data, batch_size=32, shuffle=False)
 classNames = ['0','1','2','3','4']
 
 # Set up model
