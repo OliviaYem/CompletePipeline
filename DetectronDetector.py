@@ -28,7 +28,7 @@ cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 64
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 1
 cfg.DATALOADER.NUM_WORKERS = 2
 cfg.MODEL.WEIGHTS = "/home/oliviayem/Detectron/output/model_final.pth"
-cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7
+cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.6
 
 # run inferences
 predictor = DefaultPredictor(cfg)

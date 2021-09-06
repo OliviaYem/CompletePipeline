@@ -9,6 +9,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 import csv
+import cv2
 
 class ClusterDataset(Dataset):
     def __init__(self,imgDir, labelDir,transform=None, target_transform=None):
@@ -64,7 +65,7 @@ class ClusterDataset(Dataset):
 def collate_fn(batch): #from pytorch utils
     return tuple(zip(*batch))
 
-def run_FRCNN_model(model, dataloader, device, SaveFileName):
+def run_FRCNN_model(model, dataloader, device, SaveFileName, toCrop, imgDir):
     model.eval()
     with open(SaveFileName,'w',newline='') as f:
         writer = csv.writer(f)
@@ -74,9 +75,25 @@ def run_FRCNN_model(model, dataloader, device, SaveFileName):
         images = (image.float()/255 for image in images)
         images = list(image.to(device) for image in images)
         preds = model(images)
+        if toCrop == True:
+            for imgNumber in range(len(names)):
+                for boxNumber in range(len(preds[imgNumber]['boxes'])):
+                    if preds[imgNumber]['scores'][boxNumber] > 0.6:
+                        origImg = cv2.imread(imgDir+names[imgNumber][0])
+                        #print('Read image')
+                        xmin = int(preds[imgNumber]['boxes'][boxNumber][0].item())
+                        ymin = int(preds[imgNumber]['boxes'][boxNumber][1].item())
+                        xmax = int(preds[imgNumber]['boxes'][boxNumber][2].item())
+                        ymax = int(preds[imgNumber]['boxes'][boxNumber][3].item())
+                        #print('Have corners')
+                        croppedImg = origImg[ymin:ymax,xmin:xmax].copy()
+                        #print('made copy')
+                        fileName = str(names[imgNumber][0])
+                        croppedSavePath = './FRCNNoutput/images/' + fileName[:-4] + str(boxNumber) + '.jpg'
+                        cv2.imwrite(croppedSavePath,croppedImg)
         with open(SaveFileName,'a',newline='') as f:
             writer = csv.writer(f)
             for i in range(len(names)):
                 row = [names[i],preds[i]]
                 writer.writerow(row)
-    return 
+    return
