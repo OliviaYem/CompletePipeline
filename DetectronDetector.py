@@ -14,6 +14,7 @@ from detectron2.data.catalog import DatasetCatalog
 from detectron2.data.datasets import register_coco_instances
 from detectron2.data import DatasetCatalog, MetadataCatalog, build_detection_test_loader
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
+import DetectorFunctions as df
 
 #load data
 register_coco_instances("test", {}, "/home/oliviayem/Detectron/cocoTest/cocoTest.json", "/home/oliviayem/Detectron/cocoTest")
@@ -32,6 +33,6 @@ cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.6
 
 # run inferences
 predictor = DefaultPredictor(cfg)
-evaluator = COCOEvaluator("test", cfg, False, output_dir="./output")
+evaluator = COCOEvaluator("test", cfg, False, output_dir="./DetectronOutput")
 val_loader = build_detection_test_loader(cfg, "test")
-inference_on_dataset(predictor.model, val_loader, evaluator)
+df.run_detectron_model(predictor.model, val_loader, evaluator, True)
